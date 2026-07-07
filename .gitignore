@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+
+# Tooling / caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Data & warehouse artifacts (never commit data)
+data/
+warehouse/
+*.parquet
+*.orc
+*.avro
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Docker / local volumes
+minio-data/
+volumes/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
