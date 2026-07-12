@@ -42,3 +42,4 @@ volumes/
 .vscode/
 *.swp
 .DS_Store
+CLAUDE.md

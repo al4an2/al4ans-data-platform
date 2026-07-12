@@ -4,8 +4,8 @@ version = "0.1.0"
 description = "Lakehouse platform: S3 (MinIO) + Spark + Parquet + Iceberg + Trino, with Python platform services on top"
 readme = "README.md"
 authors = [{ name = "Aleksandr Ignatev", email = "al4an2@gmail.com" }]
-# Python 3.12: PySpark 3.5 supports it in practice since 3.5.1 (officially <=3.11);
-# if we hit Spark incompatibilities, the plan is to move to Spark 4.x, not downgrade Python.
+# Target engine: PySpark 4.1.x (officially supports Python 3.9-3.13)
+# with iceberg-spark-runtime-4.1 (Iceberg >= 1.11).
 requires-python = ">=3.12,<3.13"
 dependencies = []
 
