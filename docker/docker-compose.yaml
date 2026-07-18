@@ -20,12 +20,36 @@ services:
       - ./volumes/minio:/data
     command: server /data --console-address ":9001"
 
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
+      mc mb --ignore-existing local/lake &&
+      echo 'bucket lake ready'
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
+
   nessie:
     image: ghcr.io/projectnessie/nessie:0.108.1-java
     container_name: nessie
     environment:
-      NESSIE_VERSION_STORE_TYPE: ROCKSDB
-      NESSIE_VERSION_STORE_PERSIST_ROCKS_DATABASE_PATH: /nessie_data
+      nessie.version.store.type: ROCKSDB
+      nessie.version.store.persist.rocks.database-path: /nessie_data
+      nessie.catalog.default-warehouse: warehouse
+      nessie.catalog.warehouses.warehouse.location: s3://lake/warehouse
+      nessie.catalog.service.s3.default-options.endpoint: http://minio:9000/
+      nessie.catalog.service.s3.default-options.path-style-access: "true"
+      nessie.catalog.service.s3.default-options.region: us-east-1
+      nessie.catalog.service.s3.default-options.access-key: urn:nessie-secret:quarkus:minio-creds
+      minio-creds.name: ${MINIO_ROOT_USER}
+      minio-creds.secret: ${MINIO_ROOT_PASSWORD}
     ports:
       - "19120:19120"
     healthcheck:
@@ -40,8 +64,13 @@ services:
   trino:
     image: trinodb/trino:482
     container_name: trino-coordinator
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     depends_on:
       nessie:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     ports:
       - "8080:8080"
@@ -52,4 +81,4 @@ services:
       retries: 3
       start_period: 40s
     volumes:
-      - ./volumes/trino_catalog:/etc/trino/catalog
+      - ./trino/catalog:/etc/trino/catalog:ro
