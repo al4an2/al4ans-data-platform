@@ -7,7 +7,9 @@ authors = [{ name = "Aleksandr Ignatev", email = "al4an2@gmail.com" }]
 # Target engine: PySpark 4.1.x (officially supports Python 3.9-3.13)
 # with iceberg-spark-runtime-4.1 (Iceberg >= 1.11).
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "pydantic>=2.13.4",
+]
 
 [dependency-groups]
 dev = [

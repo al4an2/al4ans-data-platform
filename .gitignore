@@ -32,7 +32,6 @@ warehouse/
 spark-warehouse/
 metastore_db/
 derby.log
-tpch.properties
 
 # Docker / local volumes
 minio-data/
