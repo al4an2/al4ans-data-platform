@@ -9,7 +9,39 @@ and quality/observability — under a Data Mesh model where domain teams own the
 
 ## Status
 
-🚧 Phase 0 — bootstrapping the repository and a first vertical slice.
+🟢 Lakehouse infrastructure is live: MinIO + Nessie (Iceberg REST catalog, RocksDB-backed) + Trino
+in Docker Compose, with the full write/read cycle verified end-to-end through Trino.
+
+🚧 Phase 0 in progress: synthetic data generator (`datagen`) and the first Spark job
+writing `bronze.transactions`.
+
+## Quickstart
+
+Prerequisites: Docker with Compose v2.
+
+```bash
+# 1. Local MinIO credentials (never committed)
+cp docker/.env.example docker/.env        # edit values if you want
+
+# 2. Start the lakehouse; wait until `docker compose ps` shows every service healthy
+cd docker && docker compose up -d
+
+# 3. Smoke-test the full write/read path (Trino -> Nessie -> MinIO)
+docker compose exec trino trino --execute "
+  CREATE SCHEMA IF NOT EXISTS lakehouse.smoke;
+  CREATE TABLE IF NOT EXISTS lakehouse.smoke.t (id int);
+  INSERT INTO lakehouse.smoke.t VALUES (1);
+  SELECT count(*) FROM lakehouse.smoke.t;"
+```
+
+| UI | URL | Login |
+|----|-----|-------|
+| Trino query monitor | http://localhost:8080/ui/ | any username, no password |
+| MinIO console | http://localhost:9001 | credentials from `docker/.env` |
+| Nessie catalog (commits, branches) | http://localhost:19120 | no auth (local only) |
+
+Python toolchain: `uv sync`, then `uv run pytest` / `uv run ruff check .` / `uv run mypy`.
+Operations & troubleshooting: `docs/runbook.md`. Architecture decisions: `docs/adr/`.
 
 ## Planned phases
 
